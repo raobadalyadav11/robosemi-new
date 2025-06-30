@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerWithRange } from '@/components/ui/date-picker';
 import { 
   BarChart, 
@@ -36,10 +35,27 @@ export default function AdminAnalyticsPage() {
     to: new Date()
   });
   const [loading, setLoading] = useState(false);
-  const [analyticsData, setAnalyticsData] = useState({
+  type ConversionFunnel = {
+    page_views: number;
+    product_views: number;
+    add_to_cart: number;
+    purchases: number;
+  };
+
+  const [analyticsData, setAnalyticsData] = useState<{
+    pageViews: any[];
+    topProducts: any[];
+    conversionFunnel: ConversionFunnel;
+    searchAnalytics: any[];
+  }>({
     pageViews: [],
     topProducts: [],
-    conversionFunnel: {},
+    conversionFunnel: {
+      page_views: 0,
+      product_views: 0,
+      add_to_cart: 0,
+      purchases: 0,
+    },
     searchAnalytics: []
   });
 
