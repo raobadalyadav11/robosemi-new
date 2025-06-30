@@ -73,7 +73,7 @@ export class ShiprocketService {
 
   private async authenticate(): Promise<string> {
     if (this.token && this.tokenExpiry && new Date() < this.tokenExpiry) {
-      return this.token;
+      return this.token!;
     }
 
     try {
@@ -96,7 +96,7 @@ export class ShiprocketService {
       this.token = data.token;
       this.tokenExpiry = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000); // 10 days
 
-      return this.token;
+      return this.token!;
     } catch (error) {
       console.error('Shiprocket authentication error:', error);
       throw error;

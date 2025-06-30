@@ -29,7 +29,7 @@ export default function CategoryPage() {
   const categoryProducts = sampleProducts.filter(p => p.category === categoryId);
   
   // Get unique brands for filters
-  const brands = [...new Set(categoryProducts.map(p => 'RoboSemi'))]; // Mock brands
+  const brands = Array.from(new Set(categoryProducts.map(p => 'RoboSemi'))); // Mock brands
   
   const [filteredProducts, setFilteredProducts] = useState(categoryProducts);
 

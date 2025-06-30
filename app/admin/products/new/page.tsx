@@ -68,7 +68,9 @@ export default function NewProductPage() {
       setFormData(prev => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof typeof prev],
+          ...(typeof prev[parent as keyof typeof prev] === 'object' && prev[parent as keyof typeof prev] !== null
+            ? prev[parent as keyof typeof prev]
+            : {}),
           [child]: value,
         },
       }));

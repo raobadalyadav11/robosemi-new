@@ -62,7 +62,7 @@ function SearchContent() {
     }
   });
 
-  const categories = [...new Set(sampleProducts.map(p => p.category))];
+  const categories = Array.from(new Set(sampleProducts.map(p => p.category)));
 
   const clearFilters = () => {
     setSortBy('relevance');

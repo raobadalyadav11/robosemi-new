@@ -41,12 +41,15 @@ export default function AdminLayout({
   useEffect(() => {
     if (!user) {
       router.push('/auth/login?redirect=/admin');
-    } else if (user.role !== 'admin' && user.role !== 'staff') {
+    } else if ((user.role as string) !== 'admin' && (user.role as string) !== 'staff') {
       router.push('/');
     }
   }, [user, router]);
 
-  if (!user || (user.role !== 'admin' && user.role !== 'staff')) {
+  if (
+    !user ||
+    ((user.role as string) !== 'admin' && (user.role as string) !== 'staff')
+  ) {
     return null;
   }
 

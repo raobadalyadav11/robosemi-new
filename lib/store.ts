@@ -22,7 +22,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'staff';
 }
 
 interface StoreState {
@@ -44,6 +44,7 @@ interface StoreState {
   addToWishlist: (product: Product) => void;
   removeFromWishlist: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
+  clearWishlist: () => void;
 
   // User
   user: User | null;
@@ -128,6 +129,7 @@ export const useStore = create<StoreState>()(
         const { wishlist } = get();
         return wishlist.some((item) => item.id === productId);
       },
+      clearWishlist: () => set({ wishlist: [] }),
 
       // User
       user: null,

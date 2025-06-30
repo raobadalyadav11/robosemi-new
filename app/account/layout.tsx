@@ -96,7 +96,7 @@ export default function AccountLayout({
                   );
                 })}
                 
-                {(user.role === 'admin' || user.role === 'staff') && (
+                {(['admin', 'staff'] as string[]).includes(user.role) && (
                   <Link
                     href="/admin"
                     className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors"

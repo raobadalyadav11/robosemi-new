@@ -295,17 +295,17 @@ export function Header() {
                       Addresses
                     </Link>
                   </DropdownMenuItem>
-                  {(user.role === 'admin' || user.role === 'staff') && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin" className="flex items-center">
-                          <Shield className="mr-3 h-4 w-4" />
-                          Admin Panel
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
-                  )}
+                {(user.role === 'admin' || user.role === 'staff') && (
+                  <>
+                    <DropdownMenuSeparator className="h-px bg-muted my-1" />
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="flex items-center p-2">
+                        <Shield className="mr-3 h-4 w-4" />
+                        Admin Panel
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                     <LogOut className="mr-3 h-4 w-4" />

@@ -94,7 +94,7 @@ export async function DELETE(request: NextRequest) {
     
     if (wishlist) {
       wishlist.products = wishlist.products.filter(
-        (id) => id.toString() !== productId
+        (id:string) => id.toString() !== productId
       );
       await wishlist.save();
       await wishlist.populate('products', 'name price images category rating reviewCount discount inStock');

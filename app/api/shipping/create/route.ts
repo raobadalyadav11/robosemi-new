@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate total weight and dimensions
-    const totalWeight = order.items.reduce((weight, item) => weight + (item.weight || 0.5) * item.quantity, 0);
+    const totalWeight = order.items.reduce((weight: number, item: { weight: any; quantity: number; }) => weight + (item.weight || 0.5) * item.quantity, 0);
     const dimensions = {
       length: 20, // Default dimensions in cm
       breadth: 15,
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       shipping_state: order.shippingAddress.state,
       shipping_country: order.shippingAddress.country,
       shipping_phone: order.shippingAddress.phone,
-      order_items: order.items.map(item => ({
+      order_items: order.items.map((item: { name: any; product: { toString: () => any; }; quantity: any; price: any; }) => ({
         name: item.name,
         sku: item.product.toString(),
         units: item.quantity,
