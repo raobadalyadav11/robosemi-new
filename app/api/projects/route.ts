@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Project from '@/lib/models/Project';
+import User from '@/lib/models/User';
 import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
@@ -44,10 +45,7 @@ export async function GET(request: NextRequest) {
     const projects = await Project.find(query)
       .sort(sort)
       .skip(skip)
-      .limit(limit)
-      .populate('category', 'name')
-      .populate('products', 'name price images')
-      .populate('createdBy', 'name');
+      .limit(limit);
 
     const total = await Project.countDocuments(query);
 
@@ -97,11 +95,7 @@ export async function POST(request: NextRequest) {
     });
 
     await project.save();
-    await project.populate([
-      { path: 'category', select: 'name' },
-      { path: 'products', select: 'name price images' },
-      { path: 'createdBy', select: 'name' }
-    ]);
+    // Remove populate to avoid schema errors
 
     return NextResponse.json(project, { status: 201 });
   } catch (error) {

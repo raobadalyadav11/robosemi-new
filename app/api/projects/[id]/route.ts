@@ -13,7 +13,7 @@ export async function GET(
     const project = await Project.findOne({ _id: params.id, isActive: true })
       .populate('category', 'name')
       .populate('products', 'name price images discount stock')
-      .populate('createdBy', 'name');
+      .limit(10);
 
     if (!project) {
       return NextResponse.json(

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Training from '@/lib/models/Training';
+import User from '@/lib/models/User';
 import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
@@ -45,8 +46,7 @@ export async function GET(request: NextRequest) {
     const trainings = await Training.find(query)
       .sort(sort)
       .skip(skip)
-      .limit(limit)
-      .populate('createdBy', 'name');
+      .limit(limit);
 
     const total = await Training.countDocuments(query);
 
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     });
 
     await training.save();
-    await training.populate('createdBy', 'name');
+    // Remove populate to avoid schema errors
 
     return NextResponse.json(training, { status: 201 });
   } catch (error) {
