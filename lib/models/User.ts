@@ -17,6 +17,12 @@ export interface IUser extends Document {
     country: string;
     isDefault: boolean;
   }>;
+  notifications?: {
+    emailOrders: boolean;
+    emailPromotions: boolean;
+    emailNewsletter: boolean;
+    smsOrders: boolean;
+  };
   isActive: boolean;
   emailVerified: boolean;
   createdAt: Date;
@@ -42,6 +48,12 @@ const UserSchema = new Schema<IUser>({
   phone: { type: String, trim: true },
   avatar: { type: String },
   addresses: [AddressSchema],
+  notifications: {
+    emailOrders: { type: Boolean, default: true },
+    emailPromotions: { type: Boolean, default: false },
+    emailNewsletter: { type: Boolean, default: true },
+    smsOrders: { type: Boolean, default: false }
+  },
   isActive: { type: Boolean, default: true },
   emailVerified: { type: Boolean, default: false }
 }, {

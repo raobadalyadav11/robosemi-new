@@ -41,8 +41,6 @@ import {
   X,
   Star,
   TrendingUp,
-  Gift,
-  Clock,
   MapPin
 } from 'lucide-react';
 import { categories } from '@/lib/data';
@@ -202,16 +200,16 @@ export function Header() {
               </NavigationMenuList>
             </NavigationMenu>
             
-            <Link href="/deals" className="text-base font-medium hover:text-primary transition-colors">
+            <Link href="/projects" className="text-base font-medium hover:text-primary transition-colors">
               <span className="relative">
-                Deals
-                <Badge className="absolute -top-2 -right-8 bg-accent text-accent-foreground text-xs px-1.5 py-0.5">
+                Projects
+                {/* <Badge className="absolute -top-2 -right-8 bg-accent text-accent-foreground text-xs px-1.5 py-0.5">
                   Hot
-                </Badge>
+                </Badge> */}
               </span>
             </Link>
-            <Link href="/about" className="text-base font-medium hover:text-primary transition-colors">
-              About
+            <Link href="/training" className="text-base font-medium hover:text-primary transition-colors">
+              Training
             </Link>
             <Link href="/contact" className="text-base font-medium hover:text-primary transition-colors">
               Contact
