@@ -6,14 +6,42 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, TrendingUp, Clock, Star } from 'lucide-react';
-import { sampleProducts } from '@/lib/data';
+import { Sparkles, TrendingUp, Clock, Star, Loader2 } from 'lucide-react';
 
-const newArrivals = sampleProducts.slice(0, 12).map(product => ({
-  ...product,
-  isNew: true,
-  arrivalDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
-}));
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  discount?: number;
+  images: string[];
+  category: string;
+  subcategory?: string;
+  brand: string;
+  sku: string;
+  stock: number;
+  inStock: boolean;
+  rating: number;
+  reviewCount: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ProductWithArrival extends Product {
+  arrivalDate: Date;
+}
+
+interface ApiResponse {
+  products: Product[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
 
 const highlights = [
   {
@@ -44,36 +72,63 @@ const highlights = [
 
 export default function NewArrivalsPage() {
   const [sortBy, setSortBy] = useState('newest');
-  const [filteredProducts, setFilteredProducts] = useState(newArrivals);
+  const [products, setProducts] = useState<ProductWithArrival[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch products from API
   useEffect(() => {
-    let sorted = [...newArrivals];
-    
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Get recent products (last 30 days) by sorting by creation date
+        const response = await fetch('/api/products?sortBy=createdAt&sortOrder=desc&limit=12');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        
+        const data: ApiResponse = await response.json();
+        
+        // Transform products to include arrival date (using createdAt as arrival date)
+        const productsWithArrival: ProductWithArrival[] = data.products.map((product: Product) => ({
+          ...product,
+          arrivalDate: new Date(product.createdAt),
+          inStock: product.stock > 0, // Add inStock property for compatibility
+        }));
+        
+        setProducts(productsWithArrival);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Sort products based on selected sort option
+  const sortedProducts = [...products].sort((a, b) => {
     switch (sortBy) {
       case 'newest':
-        sorted.sort((a, b) => b.arrivalDate.getTime() - a.arrivalDate.getTime());
-        break;
+        return b.arrivalDate.getTime() - a.arrivalDate.getTime();
       case 'price-low':
-        sorted.sort((a, b) => {
-          const priceA = a.discount ? a.price * (1 - a.discount / 100) : a.price;
-          const priceB = b.discount ? b.price * (1 - b.discount / 100) : b.price;
-          return priceA - priceB;
-        });
-        break;
+        const priceA = a.discount ? a.price * (1 - a.discount / 100) : a.price;
+        const priceB = b.discount ? b.price * (1 - b.discount / 100) : b.price;
+        return priceA - priceB;
       case 'price-high':
-        sorted.sort((a, b) => {
-          const priceA = a.discount ? a.price * (1 - a.discount / 100) : a.price;
-          const priceB = b.discount ? b.price * (1 - b.discount / 100) : b.price;
-          return priceB - priceA;
-        });
-        break;
+        const priceA2 = a.discount ? a.price * (1 - a.discount / 100) : a.price;
+        const priceB2 = b.discount ? b.price * (1 - b.discount / 100) : b.price;
+        return priceB2 - priceA2;
       case 'rating':
-        sorted.sort((a, b) => b.rating - a.rating);
-        break;
+        return b.rating - a.rating;
+      default:
+        return 0;
     }
-    
-    setFilteredProducts(sorted);
-  }, [sortBy]);
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -115,10 +170,12 @@ export default function NewArrivalsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h2 className="text-2xl font-bold">All New Arrivals</h2>
-          <p className="text-muted-foreground">{filteredProducts.length} products found</p>
+          <p className="text-muted-foreground">
+            {loading ? 'Loading products...' : `${sortedProducts.length} products found`}
+          </p>
         </div>
         
-        <Select value={sortBy} onValueChange={setSortBy}>
+        <Select value={sortBy} onValueChange={setSortBy} disabled={loading}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -131,14 +188,51 @@ export default function NewArrivalsPage() {
         </Select>
       </div>
 
-      {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {filteredProducts.map((product, index) => (
-          <div key={product.id} className="fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
-            <ProductCard product={product} />
+      {/* Loading State */}
+      {loading && (
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-muted-foreground">Loading new arrivals...</span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="text-center py-12">
+          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 max-w-md mx-auto">
+            <h3 className="font-semibold text-destructive mb-2">Error Loading Products</h3>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              variant="outline"
+              className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+            >
+              Try Again
+            </Button>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
+
+      {/* Products Grid */}
+      {!loading && !error && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {sortedProducts.length > 0 ? (
+            sortedProducts.map((product: ProductWithArrival, index: number) => (
+              <div key={product._id} className="fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                <ProductCard product={product} />
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <div className="text-muted-foreground">
+                <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <h3 className="text-lg font-semibold mb-2">No New Arrivals Yet</h3>
+                <p>Check back soon for our latest products!</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Newsletter CTA */}
       <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">

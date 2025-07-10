@@ -4,12 +4,23 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
-import { Product } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Heart, ShoppingCart, Star, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  images: string[];
+  category: string;
+  rating: number;
+  reviewCount: number;
+  discount?: number;
+  inStock: boolean;
+}
 
 interface ProductCardProps {
   product: Product;
@@ -20,32 +31,49 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);
   const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useStore();
   
-  const isWishlisted = isInWishlist(product.id);
+  const isWishlisted = isInWishlist(product._id);
   const finalPrice = product.discount 
     ? product.price * (1 - product.discount / 100)
     : product.price;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addToCart(product);
+    addToCart({
+      id: product._id,
+      name: product.name,
+      price: finalPrice,
+      image: product.images[0],
+      quantity: 1
+    });
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     if (isWishlisted) {
-      removeFromWishlist(product.id);
+      removeFromWishlist(product._id);
     } else {
-      addToWishlist(product);
+      addToWishlist({
+        id: product._id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+        category: product.category,
+        rating: product.rating,
+        reviews: product.reviewCount,
+        discount: product.discount,
+        inStock: product.inStock,
+        quantity: 1
+      });
     }
   };
 
   return (
     <Card className={cn("group overflow-hidden card-hover", className)}>
-      <Link href={`/products/${product.id}`}>
+      <Link href={`/products/${product._id}`}>
         <div className="relative aspect-square overflow-hidden">
           {/* Product Image */}
           <Image
-            src={product.image}
+            src={product.images[0] || '/placeholder.jpg'}
             alt={product.name}
             fill
             className={cn(
@@ -88,7 +116,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               className="h-8 w-8"
               asChild
             >
-              <Link href={`/products/${product.id}`}>
+              <Link href={`/products/${product._id}`}>
                 <Eye className="h-4 w-4" />
               </Link>
             </Button>
@@ -117,7 +145,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               ))}
             </div>
             <span className="text-xs text-muted-foreground">
-              ({product.reviews})
+              ({product.reviewCount})
             </span>
           </div>
 

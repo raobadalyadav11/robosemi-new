@@ -1,11 +1,23 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ProductCard } from '@/components/product/product-card';
 import { ArrowRight, TrendingUp, Star, Zap } from 'lucide-react';
-import { sampleProducts } from '@/lib/data';
 
-const featuredProducts = sampleProducts.slice(0, 8);
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  images: string[];
+  category: string;
+  rating: number;
+  reviewCount: number;
+  discount?: number;
+  inStock: boolean;
+}
 
 const productHighlights = [
   {
@@ -29,6 +41,37 @@ const productHighlights = [
 ];
 
 export function FeaturedProducts() {
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchFeaturedProducts();
+  }, []);
+
+  const fetchFeaturedProducts = async () => {
+    try {
+      const response = await fetch('/api/products?featured=true&limit=8');
+      if (response.ok) {
+        const data = await response.json();
+        setFeaturedProducts(data.products || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch featured products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-gradient-to-b from-muted/30 to-background">
+        <div className="container mx-auto px-4 text-center py-20">
+          <div className="animate-pulse">Loading featured products...</div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="section-padding bg-gradient-to-b from-muted/30 to-background">
       <div className="container mx-auto px-4">
@@ -76,7 +119,7 @@ export function FeaturedProducts() {
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {featuredProducts.map((product, index) => (
-            <div key={product.id} className="fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
+            <div key={product._id} className="fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
               <ProductCard product={product} />
             </div>
           ))}

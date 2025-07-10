@@ -4,12 +4,13 @@ import { persist } from 'zustand/middleware';
 export interface Product {
   id: string;
   name: string;
+  quantity: number;
   price: number;
-  image: string;
-  category: string;
-  rating: number;
-  reviews: number;
-  inStock: boolean;
+  image?: string;
+  category?: string;
+  rating?: number;
+  reviews?: number;
+  inStock?: boolean;
   description?: string;
   discount?: number;
 }

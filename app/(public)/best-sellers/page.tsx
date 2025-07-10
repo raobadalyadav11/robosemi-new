@@ -7,8 +7,26 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trophy, TrendingUp, Users, Star, Award, Target } from 'lucide-react';
-import { sampleProducts } from '@/lib/data';
-
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  discount?: number;
+  images: string[];
+  category: string;
+  subcategory?: string;
+  brand: string;
+  sku: string;
+  stock: number;
+  inStock: boolean;
+  rating: number;
+  reviewCount: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 const bestSellers = sampleProducts
   .filter(product => product.reviews > 150)
   .map(product => ({

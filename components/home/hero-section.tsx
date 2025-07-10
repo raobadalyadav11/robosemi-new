@@ -129,7 +129,7 @@ export function HeroSection() {
                             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                           </Link>
                         </Button>
-                        <Button size="lg" variant="outline" className="glass-effect text-white border-white/30 hover:bg-white/10 text-lg px-8 py-4">
+                        <Button size="lg" variant="destructive" className="glass-effect text-white border-white/30 hover:bg-white/10 text-lg px-8 py-4">
                           <Link href="/contact">
                             Get Quote
                           </Link>
@@ -151,23 +151,6 @@ export function HeroSection() {
           </div>
 
           {/* Enhanced Navigation Arrows */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute left-6 top-1/2 -translate-y-1/2 glass-effect text-white border-white/30 hover:bg-white/20 w-12 h-12"
-            onClick={prevSlide}
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute right-6 top-1/2 -translate-y-1/2 glass-effect text-white border-white/30 hover:bg-white/20 w-12 h-12"
-            onClick={nextSlide}
-          >
-            <ChevronRight className="h-6 w-6" />
-          </Button>
-
           {/* Enhanced Dots Indicator */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-3">
             {banners.map((_, index) => (

@@ -1,6 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+// Define the Category type
+interface Category {
+  _id: string;
+  name: string;
+  description?: string;
+}
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
@@ -63,15 +70,16 @@ export function Header() {
     setSearchQuery,
     _hasHydrated 
   } = useStore();
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   
   const cartItemsCount = cart.reduce((count, item) => count + item.quantity, 0);
 
-useEffect(() => {
-    fetch('/api/categories')
+  useEffect(() => {
+    fetch('/api/admin/categories')
       .then((response) => response.json())
-      .then((data) => setCategories(data.categories || []));
-  }, [])
+      .then((data) => setCategories(data.categories || []))
+      .catch(() => setCategories([]));
+  }, []);
 
   const handleLogout = () => {
     setUser(null);
@@ -133,11 +141,11 @@ useEffect(() => {
                   <NavigationMenuContent>
                     <div className="grid w-[500px] gap-3 p-6 md:w-[600px] md:grid-cols-2">
                       {categories.map((category) => {
-                        const Icon = iconMap[category.icon as keyof typeof iconMap];
+                        const Icon = Settings; // Default icon
                         return (
-                          <NavigationMenuLink key={category.id} asChild>
+                          <NavigationMenuLink key={category._id} asChild>
                             <Link
-                              href={`/categories/${category.id}`}
+                              href={`/categories/${category.name.toLowerCase()}`}
                               className="block select-none space-y-1 rounded-lg p-4 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground group"
                             >
                               <div className="flex items-center space-x-3">
@@ -147,7 +155,7 @@ useEffect(() => {
                                 <div>
                                   <div className="text-sm font-medium leading-none">{category.name}</div>
                                   <p className="line-clamp-2 text-xs leading-snug text-muted-foreground mt-1">
-                                    Premium {category.name.toLowerCase()} components
+                                    {category.description || `Premium ${category.name.toLowerCase()} components`}
                                   </p>
                                 </div>
                               </div>
@@ -206,12 +214,7 @@ useEffect(() => {
             </NavigationMenu>
             
             <Link href="/projects" className="text-base font-medium hover:text-primary transition-colors">
-              <span className="relative">
-                Projects
-                {/* <Badge className="absolute -top-2 -right-8 bg-accent text-accent-foreground text-xs px-1.5 py-0.5">
-                  Hot
-                </Badge> */}
-              </span>
+              Projects
             </Link>
             <Link href="/training" className="text-base font-medium hover:text-primary transition-colors">
               Training
@@ -404,11 +407,11 @@ useEffect(() => {
               <div className="text-lg font-medium text-muted-foreground">Categories</div>
               <div className="grid grid-cols-2 gap-3">
                 {categories.map((category) => {
-                  const Icon = iconMap[category.icon as keyof typeof iconMap];
+                  const Icon = Settings; // Default icon
                   return (
                     <Link
-                      key={category.id}
-                      href={`/categories/${category.id}`}
+                      key={category._id}
+                      href={`/categories/${category.name.toLowerCase()}`}
                       className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >

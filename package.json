@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "seed":"npx tsx lib/seed.ts",
+    "seed": "npx tsx lib/seed.ts",
+    "seed-projects": "npx tsx lib/seed-projects-training.ts",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit"

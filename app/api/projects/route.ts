@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import Product from '@/lib/models/Product';
+import Project from '@/lib/models/Project';
 import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
@@ -12,11 +12,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '12');
     const category = searchParams.get('category');
     const search = searchParams.get('search');
+    const difficulty = searchParams.get('difficulty');
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortOrder = searchParams.get('sortOrder') === 'asc' ? 1 : -1;
-    const minPrice = parseFloat(searchParams.get('minPrice') || '0');
-    const maxPrice = parseFloat(searchParams.get('maxPrice') || '999999');
-    const featured = searchParams.get('featured') === 'true';
 
     const skip = (page - 1) * limit;
 
@@ -27,34 +25,34 @@ export async function GET(request: NextRequest) {
       query.category = category;
     }
     
-    if (featured) {
-      query.isFeatured = true;
+    if (difficulty) {
+      query.difficulty = difficulty;
     }
     
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
+        { title: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } }
+        { tags: { $regex: search, $options: 'i' } }
       ];
     }
-    
-    query.price = { $gte: minPrice, $lte: maxPrice };
 
     // Build sort object
     const sort: any = {};
     sort[sortBy] = sortOrder;
 
-    const products = await Product.find(query)
+    const projects = await Project.find(query)
       .sort(sort)
       .skip(skip)
       .limit(limit)
+      .populate('category', 'name')
+      .populate('products', 'name price images')
       .populate('createdBy', 'name');
 
-    const total = await Product.countDocuments(query);
+    const total = await Project.countDocuments(query);
 
     return NextResponse.json({
-      products,
+      projects,
       pagination: {
         page,
         limit,
@@ -63,7 +61,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error('Error fetching projects:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -83,19 +81,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const productData = await request.json();
+    const projectData = await request.json();
     
-    const product = new Product({
-      ...productData,
+    // Validate required fields
+    if (!projectData.title || !projectData.description || !projectData.image || !projectData.category) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    const project = new Project({
+      ...projectData,
       createdBy: user.userId,
     });
 
-    await product.save();
-    await product.populate('createdBy', 'name');
+    await project.save();
+    await project.populate([
+      { path: 'category', select: 'name' },
+      { path: 'products', select: 'name price images' },
+      { path: 'createdBy', select: 'name' }
+    ]);
 
-    return NextResponse.json(product, { status: 201 });
+    return NextResponse.json(project, { status: 201 });
   } catch (error) {
-    console.error('Error creating product:', error);
+    console.error('Error creating project:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

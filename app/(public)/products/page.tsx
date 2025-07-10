@@ -13,9 +13,29 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, X, Grid3X3, List } from 'lucide-react';
 
-async function ProductsContent() {
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  images: string[];
+  category: string;
+  rating: number;
+  reviewCount: number;
+  discount?: number;
+  inStock: boolean;
+}
+
+interface Category {
+  _id: string;
+  name: string;
+  description?: string;
+}
+
+function ProductsContent() {
   const searchParams = useSearchParams();
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const {
     searchQuery,
     setSearchQuery,
@@ -27,21 +47,23 @@ async function ProductsContent() {
     setSortBy,
   } = useStore();
 
-  useEffect(() => {
-  const products=await fetch("/api/products").then(res=>res.json());
-  console.log(products);
-  }, []);
-
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [filteredProducts, setFilteredProducts] = useState(sampleProducts);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-      fetch('/api/categories')
-        .then((response) => response.json())
-        .then((data) => setCategories(data.categories || []));
-    }, [])
+    Promise.all([
+      fetch('/api/admin/categories').then(res => res.json()),
+      fetch('/api/products').then(res => res.json())
+    ])
+    .then(([categoriesData, productsData]) => {
+      setCategories(categoriesData.categories || []);
+      setProducts(productsData.products || []);
+    })
+    .catch(console.error)
+    .finally(() => setLoading(false));
+  }, []);
 
   // Initialize from URL params
   useEffect(() => {
@@ -53,7 +75,7 @@ async function ProductsContent() {
 
   // Filter and sort products
   useEffect(() => {
-    let filtered = sampleProducts;
+    let filtered = products;
 
     // Filter by search query
     if (searchQuery) {
@@ -97,12 +119,11 @@ async function ProductsContent() {
         break;
       case 'newest':
       default:
-        // Keep original order for newest
         break;
     }
 
     setFilteredProducts(filtered);
-  }, [searchQuery, selectedCategory, priceRange, sortBy]);
+  }, [products, searchQuery, selectedCategory, priceRange, sortBy]);
 
   const handleSearch = () => {
     setSearchQuery(localSearchQuery);
@@ -122,6 +143,14 @@ async function ProductsContent() {
     priceRange[0] > 0 || priceRange[1] < 10000,
   ].filter(Boolean).length;
 
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-20">Loading products...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -131,7 +160,7 @@ async function ProductsContent() {
           <p className="text-muted-foreground">
             {filteredProducts.length} products found
             {selectedCategory && (
-              <span> in {categories.find(c => c.id === selectedCategory)?.name}</span>
+              <span> in {categories.find(c => c.name === selectedCategory)?.name}</span>
             )}
           </p>
         </div>
@@ -206,11 +235,11 @@ async function ProductsContent() {
                     <label className="text-sm">All Categories</label>
                   </div>
                   {categories.map((category) => (
-                    <div key={category.id} className="flex items-center space-x-2">
+                    <div key={category._id} className="flex items-center space-x-2">
                       <Checkbox
-                        checked={selectedCategory === category.id}
+                        checked={selectedCategory === category.name}
                         onCheckedChange={(checked) => 
-                          setSelectedCategory(checked ? category.id : '')
+                          setSelectedCategory(checked ? category.name : '')
                         }
                       />
                       <label className="text-sm">{category.name}</label>
@@ -255,7 +284,7 @@ async function ProductsContent() {
               )}
               {selectedCategory && (
                 <Badge variant="secondary" className="flex items-center gap-1">
-                  {categories.find(c => c.id === selectedCategory)?.name}
+                  {selectedCategory}
                   <X className="h-3 w-3 cursor-pointer" onClick={() => setSelectedCategory('')} />
                 </Badge>
               )}
@@ -283,7 +312,7 @@ async function ProductsContent() {
             }>
               {filteredProducts.map((product) => (
                 <ProductCard 
-                  key={product.id} 
+                  key={product._id} 
                   product={product}
                   className={viewMode === 'list' ? 'flex-row' : ''}
                 />
