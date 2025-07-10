@@ -74,6 +74,7 @@ export default function ProductDetailPage() {
         id: product._id,
         name: product.name,
         price: product.price,
+        quantity: 1,
         image: product.images[0],
         category: product.category,
         rating: product.rating,

@@ -14,10 +14,10 @@ interface Product {
   _id: string;
   name: string;
   price: number;
-  images: string[];
-  category: string;
-  rating: number;
-  reviewCount: number;
+  images?: string[];
+  category?: string;
+  rating?: number;
+  reviewCount?: number;
   discount?: number;
   inStock?: boolean;
 }
@@ -42,7 +42,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       id: product._id,
       name: product.name,
       price: finalPrice,
-      image: product.images[0],
+      image: product.images?.[0] || '/placeholder.jpg',
       quantity: 1
     });
   };
@@ -56,10 +56,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
         id: product._id,
         name: product.name,
         price: product.price,
-        image: product.images[0],
-        category: product.category,
-        rating: product.rating,
-        reviews: product.reviewCount,
+        image: product.images?.[0] || '/placeholder.jpg',
+        category: product.category || '',
+        rating: product.rating || 0,
+        reviews: product.reviewCount || 0,
         discount: product.discount,
         inStock: product.inStock !== false,
         quantity: 1
@@ -73,7 +73,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <div className="relative aspect-square overflow-hidden">
           {/* Product Image */}
           <Image
-            src={product.images[0] || '/placeholder.jpg'}
+            src={product.images?.[0] || '/placeholder.jpg'}
             alt={product.name}
             fill
             className={cn(
@@ -137,7 +137,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                   key={i}
                   className={cn(
                     "h-3 w-3",
-                    i < Math.floor(product.rating)
+                    i < Math.floor(product.rating || 0)
                       ? "fill-yellow-400 text-yellow-400"
                       : "text-muted-foreground"
                   )}
@@ -145,7 +145,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               ))}
             </div>
             <span className="text-xs text-muted-foreground">
-              ({product.reviewCount})
+              ({product.reviewCount || 0})
             </span>
           </div>
 

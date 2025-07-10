@@ -8,8 +8,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter, X, SlidersHorizontal } from 'lucide-react';
-import { sampleProducts } from '@/lib/data';
+import { Search, Filter, X, SlidersHorizontal, Loader2 } from 'lucide-react';
+import { fetchProducts } from '@/lib/api';
+
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  images: string[];
+  category: string;
+  rating: number;
+  reviewCount: number;
+  discount?: number;
+  stock: number;
+  description?: string;
+  inStock?: boolean;
+}
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -20,9 +34,48 @@ function SearchContent() {
   const [priceRange, setPriceRange] = useState('all');
   const [category, setCategory] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const result = await fetchProducts({ limit: 200 });
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to fetch products');
+        }
+        
+        const allProducts = result.data?.products || [];
+        const enhancedProducts = allProducts.map((p: Product) => ({
+          ...p,
+          inStock: p.stock > 0
+        }));
+        
+        setProducts(enhancedProducts);
+        
+        // Extract unique categories
+        const uniqueCategories = Array.from(new Set(enhancedProducts.map((p: Product) => p.category)));
+        setCategories(uniqueCategories);
+        
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllProducts();
+  }, []);
 
   // Filter products based on search query
-  const filteredProducts = sampleProducts.filter(product => {
+  const filteredProducts = products.filter((product: Product) => {
     const matchesQuery = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -43,7 +96,7 @@ function SearchContent() {
   });
 
   // Sort products
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
+  const sortedProducts = [...filteredProducts].sort((a: Product, b: Product) => {
     switch (sortBy) {
       case 'price-low':
         const priceA = a.discount ? a.price * (1 - a.discount / 100) : a.price;
@@ -62,8 +115,6 @@ function SearchContent() {
     }
   });
 
-  const categories = Array.from(new Set(sampleProducts.map(p => p.category)));
-
   const clearFilters = () => {
     setSortBy('relevance');
     setPriceRange('all');
@@ -76,9 +127,33 @@ function SearchContent() {
     category !== 'all'
   ].filter(Boolean).length;
 
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+            <p className="text-lg text-muted-foreground">Loading products...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center space-y-6">
+          <h1 className="text-2xl font-bold">Error Loading Search</h1>
+          <p className="text-muted-foreground">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header */}
       <div className="space-y-6 mb-8">
         <div>
           <h1 className="text-3xl font-bold">Search Results</h1>
@@ -89,7 +164,6 @@ function SearchContent() {
           )}
         </div>
 
-        {/* Search Bar */}
         <div className="flex gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -117,7 +191,6 @@ function SearchContent() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Filters Sidebar */}
         <div className={`lg:w-80 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
           <Card>
             <CardHeader>
@@ -132,7 +205,6 @@ function SearchContent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Sort By */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Sort By</label>
                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -149,7 +221,6 @@ function SearchContent() {
                 </Select>
               </div>
 
-              {/* Category */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Category</label>
                 <Select value={category} onValueChange={setCategory}>
@@ -158,7 +229,7 @@ function SearchContent() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map((cat) => (
+                    {categories.map((cat: string) => (
                       <SelectItem key={cat} value={cat}>
                         {cat.charAt(0).toUpperCase() + cat.slice(1)}
                       </SelectItem>
@@ -167,7 +238,6 @@ function SearchContent() {
                 </Select>
               </div>
 
-              {/* Price Range */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Price Range</label>
                 <Select value={priceRange} onValueChange={setPriceRange}>
@@ -187,9 +257,7 @@ function SearchContent() {
           </Card>
         </div>
 
-        {/* Results */}
         <div className="flex-1">
-          {/* Active Filters */}
           {activeFiltersCount > 0 && (
             <div className="flex flex-wrap gap-2 mb-6">
               {sortBy !== 'relevance' && (
@@ -213,17 +281,15 @@ function SearchContent() {
             </div>
           )}
 
-          {/* Products Grid */}
           {sortedProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {sortedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {sortedProducts.map((product: Product) => (
+                <ProductCard key={product._id} product={product} />
               ))}
             </div>
           ) : (
             <Card className="text-center py-12">
               <CardContent>
-                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No products found</h3>
                 <p className="text-muted-foreground mb-4">
                   Try adjusting your search terms or filters
@@ -240,7 +306,13 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      </div>
+    }>
       <SearchContent />
     </Suspense>
   );
