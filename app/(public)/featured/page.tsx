@@ -1,27 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ProductCard } from '@/components/product/product-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, Award, Zap, TrendingUp, Crown, Sparkles } from 'lucide-react';
-import { sampleProducts } from '@/lib/data';
+import { Star, Award, Zap, TrendingUp, Crown, Sparkles, Loader2 } from 'lucide-react';
+import { fetchFeaturedProducts } from '@/lib/api';
 
-const featuredProducts = sampleProducts.slice(0, 8).map(product => ({
-  ...product,
-  featured: true,
-  featuredReason: ['Editor\'s Choice', 'Customer Favorite', 'Innovation Award', 'Best Value'][Math.floor(Math.random() * 4)]
-}));
-
-const categories = [
-  { id: 'all', name: 'All Featured', icon: Crown },
-  { id: 'controllers', name: 'Controllers', icon: Zap },
-  { id: 'sensors', name: 'Sensors', icon: Star },
-  { id: 'electronics', name: 'Electronics', icon: TrendingUp },
-  { id: 'actuators', name: 'Actuators', icon: Award },
-];
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  images: string[];
+  category: string;
+  rating: number;
+  reviewCount: number;
+  discount?: number;
+  stock: number;
+  inStock: boolean;
+  featuredReason?: string;
+}
 
 const highlights = [
   {
@@ -52,14 +52,101 @@ const highlights = [
 
 export default function FeaturedPage() {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState([
+    { id: 'all', name: 'All Featured', icon: Crown },
+    { id: 'controllers', name: 'Controllers', icon: Zap },
+    { id: 'sensors', name: 'Sensors', icon: Star },
+    { id: 'electronics', name: 'Electronics', icon: TrendingUp },
+    { id: 'actuators', name: 'Actuators', icon: Award },
+  ]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const result = await fetchFeaturedProducts();
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to fetch featured products');
+        }
+        
+        const products = result.data?.products || [];
+        const enhancedProducts = products.map((product: Product) => ({
+          ...product,
+          inStock: product.stock > 0,
+          featuredReason: ['Editor\'s Choice', 'Customer Favorite', 'Innovation Award', 'Best Value'][Math.floor(Math.random() * 4)]
+        }));
+        
+        setFeaturedProducts(enhancedProducts);
+        
+        // Generate dynamic categories
+        const uniqueCategories = Array.from(new Set(enhancedProducts.map((p: Product) => p.category)));
+        const dynamicCategories = [
+          { id: 'all', name: 'All Featured', icon: Crown },
+          ...uniqueCategories.map(cat => ({
+            id: cat,
+            name: cat.charAt(0).toUpperCase() + cat.slice(1),
+            icon: Star
+          }))
+        ];
+        setCategories(dynamicCategories);
+        
+      } catch (err) {
+        console.error('Error fetching featured products:', err);
+        setError('Failed to load featured products. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const filteredProducts = activeCategory === 'all' 
     ? featuredProducts 
-    : featuredProducts.filter(product => product.category === activeCategory);
+    : featuredProducts.filter(product => product.category.toLowerCase() === activeCategory);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+            <p className="text-lg text-muted-foreground">Loading featured products...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center space-y-6 mb-12">
+          <Badge className="bg-red-100 text-red-800 border-red-200 px-4 py-2">
+            Error
+          </Badge>
+          <h1 className="heading-xl text-balance">
+            Something went wrong
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-balance">
+            {error}
+          </p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header */}
       <div className="text-center space-y-6 mb-12">
         <Badge className="bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-800 border-orange-200 px-4 py-2">
           Featured Products
@@ -73,7 +160,6 @@ export default function FeaturedPage() {
         </p>
       </div>
 
-      {/* Highlights */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {highlights.map((highlight, index) => {
           const Icon = highlight.icon;
@@ -94,7 +180,6 @@ export default function FeaturedPage() {
         })}
       </div>
 
-      {/* Category Tabs */}
       <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-8">
         <TabsList className="grid w-full grid-cols-5">
           {categories.map((category) => {
@@ -121,7 +206,7 @@ export default function FeaturedPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredProducts.map((product, index) => (
-                <div key={product.id} className="relative fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div key={product._id} className="relative fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
                   <div className="absolute top-2 left-2 z-10">
                     <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs">
                       ⭐ Featured
@@ -136,11 +221,20 @@ export default function FeaturedPage() {
                 </div>
               ))}
             </div>
+
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-12">
+                <Crown className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No featured products found</h3>
+                <p className="text-muted-foreground">
+                  No featured products available in this category.
+                </p>
+              </div>
+            )}
           </TabsContent>
         ))}
       </Tabs>
 
-      {/* Why Featured Section */}
       <Card className="mt-16 bg-gradient-to-r from-yellow-50 via-orange-50 to-red-50 border-orange-200">
         <CardContent className="p-8 text-center space-y-6">
           <Crown className="h-12 w-12 text-orange-600 mx-auto" />

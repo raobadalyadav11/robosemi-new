@@ -19,7 +19,7 @@ interface Product {
   rating: number;
   reviewCount: number;
   discount?: number;
-  inStock: boolean;
+  inStock?: boolean;
 }
 
 interface ProductCardProps {
@@ -61,7 +61,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         rating: product.rating,
         reviews: product.reviewCount,
         discount: product.discount,
-        inStock: product.inStock,
+        inStock: product.inStock !== false,
         quantity: 1
       });
     }
@@ -93,7 +93,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 {product.discount}% OFF
               </Badge>
             )}
-            {!product.inStock && (
+            {product.inStock === false && (
               <Badge variant="destructive">
                 Out of Stock
               </Badge>
@@ -166,10 +166,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
           <Button
             className="w-full"
             onClick={handleAddToCart}
-            disabled={!product.inStock}
+            disabled={product.inStock === false}
           >
             <ShoppingCart className="mr-2 h-4 w-4" />
-            {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+            {product.inStock !== false ? 'Add to Cart' : 'Out of Stock'}
           </Button>
         </CardFooter>
       </Link>

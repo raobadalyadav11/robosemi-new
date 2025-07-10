@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, X, Grid3X3, List } from 'lucide-react';
+import { fetchProducts } from '@/lib/api';
 
 interface Product {
   _id: string;
@@ -55,11 +56,11 @@ function ProductsContent() {
   useEffect(() => {
     Promise.all([
       fetch('/api/admin/categories').then(res => res.json()),
-      fetch('/api/products').then(res => res.json())
+      fetchProducts()
     ])
-    .then(([categoriesData, productsData]) => {
+    .then(([categoriesData, productsResult]) => {
       setCategories(categoriesData.categories || []);
-      setProducts(productsData.products || []);
+      setProducts(productsResult.success ? productsResult.data?.products || [] : []);
     })
     .catch(console.error)
     .finally(() => setLoading(false));
