@@ -1,10 +1,11 @@
 {
-  "name": "robosemi-ecommerce-advanced",
+  "name": "robosemi-ecommerce",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "seed":"npx tsx lib/seed.ts",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit"

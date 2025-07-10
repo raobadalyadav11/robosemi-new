@@ -14,6 +14,6 @@ const WishlistSchema = new Schema<IWishlist>({
   timestamps: true
 });
 
-WishlistSchema.index({ user: 1 });
+// Index on user field is already created by unique: true constraint
 
 export default mongoose.models.Wishlist || mongoose.model<IWishlist>('Wishlist', WishlistSchema);

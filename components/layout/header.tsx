@@ -43,8 +43,6 @@ import {
   TrendingUp,
   MapPin
 } from 'lucide-react';
-import { categories } from '@/lib/data';
-
 const iconMap = {
   Settings,
   Zap,
@@ -65,8 +63,15 @@ export function Header() {
     setSearchQuery,
     _hasHydrated 
   } = useStore();
+  const [categories, setCategories] = useState([]);
   
   const cartItemsCount = cart.reduce((count, item) => count + item.quantity, 0);
+
+useEffect(() => {
+    fetch('/api/categories')
+      .then((response) => response.json())
+      .then((data) => setCategories(data.categories || []));
+  }, [])
 
   const handleLogout = () => {
     setUser(null);

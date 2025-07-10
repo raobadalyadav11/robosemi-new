@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useStore } from '@/lib/store';
@@ -13,10 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, X, Grid3X3, List } from 'lucide-react';
-import { sampleProducts, categories } from '@/lib/data';
 
-function ProductsContent() {
+async function ProductsContent() {
   const searchParams = useSearchParams();
+  const [categories, setCategories] = useState([]);
   const {
     searchQuery,
     setSearchQuery,
@@ -28,10 +27,21 @@ function ProductsContent() {
     setSortBy,
   } = useStore();
 
+  useEffect(() => {
+  const products=await fetch("/api/products").then(res=>res.json());
+  console.log(products);
+  }, []);
+
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filteredProducts, setFilteredProducts] = useState(sampleProducts);
+
+  useEffect(() => {
+      fetch('/api/categories')
+        .then((response) => response.json())
+        .then((data) => setCategories(data.categories || []));
+    }, [])
 
   // Initialize from URL params
   useEffect(() => {

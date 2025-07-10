@@ -49,3 +49,52 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export async function PUT(request: NextRequest) {
+  try {
+    await connectDB();
+
+    const user = getUserFromRequest(request);
+    if (!user || !['admin', 'staff'].includes(user.role)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { name, description, isActive } = await request.json();
+
+    const category = await Category.findOneAndUpdate(
+      { name },
+      { description, isActive },
+      { new: true }
+    );
+
+    if (!category) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(category);
+  } catch (error) {
+    console.error('Error updating category:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+export async function DELETE(request: NextRequest) {
+  try {
+    await connectDB();
+    const user = getUserFromRequest(request);
+    if (!user || !['admin', 'staff'].includes(user.role)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { name } = await request.json();
+
+    const category = await Category.findOneAndDelete({ name });
+
+    if (!category) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
