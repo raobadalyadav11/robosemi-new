@@ -69,7 +69,7 @@ export function HeroSection() {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-background via-muted/30 to-primary/5">
-      <div className="container mx-auto px-4 py-8">
+      <div className="">
         {/* Main Hero Banner */}
         <Card className="relative h-[600px] md:h-[700px] overflow-hidden pulse-glow">
           <div className="relative h-full">

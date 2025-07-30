@@ -38,20 +38,20 @@ export default function AdminLayout({
   const router = useRouter();
   const { user } = useStore();
 
-  // useEffect(() => {
-  //   if (!user) {
-  //     router.push('/auth/login?redirect=/admin');
-  //   } else if ((user.role as string) !== 'admin' && (user.role as string) !== 'staff') {
-  //     router.push('/');
-  //   }
-  // }, [user, router]);
+  useEffect(() => {
+    if (!user) {
+      router.push('/auth/login?redirect=/admin');
+    } else if ((user.role as string) !== 'admin' && (user.role as string) !== 'staff') {
+      router.push('/');
+    }
+  }, [user, router]);
 
-  // if (
-  //   !user ||
-  //   ((user.role as string) !== 'admin' && (user.role as string) !== 'staff')
-  // ) {
-  //   return null;
-  // }
+  if (
+    !user ||
+    ((user.role as string) !== 'admin' && (user.role as string) !== 'staff')
+  ) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">

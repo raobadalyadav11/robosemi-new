@@ -7,7 +7,6 @@ import Order from "./models/Order";
 import bcryptjs from "bcryptjs";
 import Wishlist from "./models/Wishlist";
 import Review from "./models/Review";
-import mongoose from "mongoose";
 
 export async function seedDatabase() {
   try {
