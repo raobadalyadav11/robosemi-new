@@ -5,7 +5,6 @@ import Category from "./models/Category";
 import Coupon from "./models/Coupon";
 import Order from "./models/Order";
 import bcryptjs from "bcryptjs";
-import Wishlist from "./models/Wishlist";
 import Review from "./models/Review";
 
 export async function seedDatabase() {
@@ -13,15 +12,14 @@ export async function seedDatabase() {
     await connectDB();
     console.log("deleting  data from db...");
     // Clear existing data
-    await Promise.all([
-      User.deleteMany({}),
-      Product.deleteMany({}),
-      Category.deleteMany({}),
-      Coupon.deleteMany({}),
-      Order.deleteMany({}),
-      Wishlist.deleteMany({}),
-      Review.deleteMany({}),
-    ]);
+    // await Promise.all([
+    //   User.deleteMany({}),
+    //   Product.deleteMany({}),
+    //   Category.deleteMany({}),
+    //   Coupon.deleteMany({}),
+    //   Order.deleteMany({}),
+    //   Review.deleteMany({}),
+    // ]);
 
     console.log("Data seeding started.");
 
@@ -215,6 +213,7 @@ export async function seedDatabase() {
           "The Arduino Uno R3 is a microcontroller board based on the ATmega328P.",
         price: 1299,
         category: "Microcontrollers",
+        brand: "Arduino",
         images: [
           "https://images.unsplash.com/photo-1553406830-ef2513450d76?w=500",
         ],
@@ -227,12 +226,13 @@ export async function seedDatabase() {
           "Digital I/O Pins": "14",
           "Analog Input Pins": "6",
         },
-        features: ["USB connectivity", "Easy to use", "Open source"],
+        tags: ["arduino", "microcontroller", "development board"],
         isActive: true,
         isFeatured: true,
         rating: 4.8,
         reviewCount: 156,
         discount: 10,
+        createdBy: adminUser._id,
       },
       {
         name: "Raspberry Pi 4 Model B",
@@ -240,6 +240,7 @@ export async function seedDatabase() {
           "A high-performance 64-bit quad-core processor, dual-display support.",
         price: 4999,
         category: "Microcontrollers",
+        brand: "Raspberry Pi Foundation",
         images: [
           "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500",
         ],
@@ -251,11 +252,12 @@ export async function seedDatabase() {
           Storage: "MicroSD",
           Connectivity: "WiFi, Bluetooth, Ethernet",
         },
-        features: ["4K video output", "Gigabit Ethernet", "USB 3.0"],
+        tags: ["raspberry pi", "single board computer", "linux"],
         isActive: true,
         isFeatured: true,
         rating: 4.9,
         reviewCount: 203,
+        createdBy: adminUser._id,
       },
       {
         name: "DHT22 Temperature Sensor",
@@ -263,6 +265,7 @@ export async function seedDatabase() {
           "Digital temperature and humidity sensor with high accuracy.",
         price: 299,
         category: "Sensors",
+        brand: "Aosong",
         images: [
           "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=500",
         ],
@@ -274,20 +277,18 @@ export async function seedDatabase() {
           Accuracy: "±0.5°C, ±1% RH",
           Interface: "Single-wire digital",
         },
-        features: [
-          "High accuracy",
-          "Low power consumption",
-          "Easy integration",
-        ],
+        tags: ["temperature sensor", "humidity sensor", "digital sensor"],
         isActive: true,
         rating: 4.6,
         reviewCount: 89,
+        createdBy: adminUser._id,
       },
       {
         name: "SG90 Servo Motor",
         description: "Micro servo motor for robotics and automation projects.",
         price: 199,
         category: "Motors",
+        brand: "TowerPro",
         images: [
           "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=500",
         ],
@@ -299,17 +300,19 @@ export async function seedDatabase() {
           Speed: "0.1 sec/60°",
           Weight: "9g",
         },
-        features: ["Precise control", "Lightweight", "Durable"],
+        tags: ["servo motor", "robotics", "micro servo"],
         isActive: true,
         rating: 4.4,
         reviewCount: 67,
         discount: 15,
+        createdBy: adminUser._id,
       },
       {
         name: "16x2 LCD Display",
         description: "Character LCD display for displaying text and numbers.",
         price: 399,
         category: "Displays",
+        brand: "Hitachi",
         images: [
           "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500",
         ],
@@ -321,16 +324,18 @@ export async function seedDatabase() {
           Interface: "Parallel",
           "Operating Voltage": "5V",
         },
-        features: ["Easy to use", "Backlit display", "Standard interface"],
+        tags: ["lcd display", "character display", "16x2"],
         isActive: true,
         rating: 4.3,
         reviewCount: 45,
+        createdBy: adminUser._id,
       },
       {
         name: "ESP32 WiFi Module",
         description: "Powerful WiFi and Bluetooth microcontroller module.",
         price: 899,
         category: "Modules",
+        brand: "Espressif",
         images: [
           "https://images.unsplash.com/photo-1553406830-ef2513450d76?w=500",
         ],
@@ -342,15 +347,12 @@ export async function seedDatabase() {
           Bluetooth: "v4.2 BR/EDR and BLE",
           GPIO: "34 pins",
         },
-        features: [
-          "Built-in WiFi",
-          "Bluetooth support",
-          "Low power consumption",
-        ],
+        tags: ["esp32", "wifi module", "bluetooth", "iot"],
         isActive: true,
         isFeatured: true,
         rating: 4.7,
         reviewCount: 134,
+        createdBy: adminUser._id,
       },
       {
         name: "HC-SR04 Ultrasonic Sensor",
@@ -358,6 +360,7 @@ export async function seedDatabase() {
           "HC-SR04 ultrasonic sensor provides 2cm - 400cm non-contact measurement function with ranging accuracy up to 3mm.",
         price: 299,
         category: "Sensors",
+        brand: "Generic",
         images: [
           "https://images.pexels.com/photos/163100/circuit-circuit-board-resistor-computer-163100.jpeg",
         ],
@@ -369,10 +372,11 @@ export async function seedDatabase() {
           voltage: "5V",
           interface: "Digital",
         },
-        features: ["Non-contact measurement", "High accuracy", "Easy to use"],
+        tags: ["ultrasonic sensor", "distance sensor", "hc-sr04"],
         isActive: true,
         rating: 4.6,
         reviewCount: 312,
+        createdBy: adminUser._id,
       },
       {
         name: "NEMA 17 Stepper Motor",
@@ -380,6 +384,7 @@ export async function seedDatabase() {
           "NEMA 17 stepper motor perfect for 3D printers, CNC machines, and robotics projects.",
         price: 1599,
         category: "Motors",
+        brand: "Generic",
         images: [
           "https://images.pexels.com/photos/159298/gears-cogs-machine-machinery-159298.jpeg",
         ],
@@ -391,11 +396,12 @@ export async function seedDatabase() {
           voltage: "12V",
           current: "1.7A",
         },
-        features: ["High torque", "Precise positioning", "Durable construction"],
+        tags: ["stepper motor", "nema 17", "3d printer", "cnc"],
         isActive: true,
         isFeatured: true,
         rating: 4.8,
         reviewCount: 89,
+        createdBy: adminUser._id,
       },
       {
         name: "0.96 Inch OLED Display",
@@ -403,6 +409,7 @@ export async function seedDatabase() {
           "0.96-inch OLED display with 128x64 resolution for Arduino projects.",
         price: 499,
         category: "Displays",
+        brand: "Generic",
         images: [
           "https://images.pexels.com/photos/442150/pexels-photo-442150.jpeg",
         ],
@@ -413,17 +420,19 @@ export async function seedDatabase() {
           interface: "I2C",
           size: "0.96 inch",
         },
-        features: ["High contrast", "Low power", "Easy interface"],
+        tags: ["oled display", "128x64", "i2c", "arduino"],
         isActive: true,
         isFeatured: true,
         rating: 4.7,
         reviewCount: 98,
+        createdBy: adminUser._id,
       },
       {
         name: "Soldering Iron 60W",
         description: "60W adjustable soldering iron for electronics assembly.",
         price: 699,
         category: "Tools",
+        brand: "Generic",
         images: [
           "https://images.pexels.com/photos/159304/network-cable-ethernet-computer-159304.jpeg",
         ],
@@ -433,12 +442,13 @@ export async function seedDatabase() {
           power: "60W", 
           temperature: "200-450°C" 
         },
-        features: ["Adjustable temperature", "Quick heating", "Ergonomic grip"],
+        tags: ["soldering iron", "60w", "electronics tool"],
         isActive: true,
         isFeatured: true,
         rating: 4.7,
         reviewCount: 67,
         discount: 10,
+        createdBy: adminUser._id,
       },
 
 
@@ -552,12 +562,6 @@ export async function seedDatabase() {
         orderStatus: "delivered",
       },
     ]);
-
-    // Create wishlist
-    await Wishlist.create({
-      user: users[0]._id,
-      products: [products[1]._id, products[2]._id],
-    });
 
     console.log("Database seeded successfully!");
     return {

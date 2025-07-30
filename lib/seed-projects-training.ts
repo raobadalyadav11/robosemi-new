@@ -4,6 +4,7 @@ import Project from './models/Project';
 import Training from './models/Training';
 import Category from './models/Category';
 import User from './models/User';
+import bcryptjs from 'bcryptjs';
 
 const sampleProjects = [
   {
@@ -302,7 +303,7 @@ export async function seedProjectsAndTraining() {
       adminUser = await User.create({
         name: 'Admin User',
         email: 'admin@robosemi.com',
-        password: 'admin123', // This should be hashed in real implementation
+        password:await bcryptjs.hash('admin123',12), // This should be hashed in real implementation
         role: 'admin',
         phone: '+91-9876543210',
         address: {

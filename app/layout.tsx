@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col">
           <main className="flex-1">
             {children}
+            <Script src='https://checkout.razorpay.com/v1/checkout.js'/>
           </main>
         </div>
         <Toaster />

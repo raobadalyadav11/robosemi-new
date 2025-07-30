@@ -386,6 +386,12 @@ export function Header() {
               >
                 Deals
               </Link>
+              <Link href="/projects" className="block py-3 text-lg font-medium hover:text-primary transition-colors">
+              Projects
+            </Link>
+            <Link href="/training" className="block py-3 text-lg font-medium hover:text-primary transition-colors">
+              Training
+            </Link>
               <Link
                 href="/about"
                 className="block py-3 text-lg font-medium hover:text-primary transition-colors"
