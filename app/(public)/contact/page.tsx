@@ -143,7 +143,7 @@ export default function ContactPage() {
               <a href="/support" className="block text-sm text-primary hover:underline">
                 Technical Support
               </a>
-              <a href="/warranty" className="block text-sm text-primary hover:underline">
+              <a href="/warranty-policy" className="block text-sm text-primary hover:underline">
                 Warranty Information
               </a>
               <a href="/shipping" className="block text-sm text-primary hover:underline">

@@ -42,7 +42,7 @@ export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -53,7 +53,7 @@ export default function BlogPage() {
         page: page.toString(),
         limit: '9',
         ...(searchQuery && { search: searchQuery }),
-        ...(selectedCategory && { category: selectedCategory }),
+        ...(selectedCategory !== 'all' && { category: selectedCategory }),
       });
 
       const response = await fetch(`/api/blog?${params}`);
@@ -103,13 +103,12 @@ export default function BlogPage() {
           </div>
           <Button type="submit">Search</Button>
         </form>
-        
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
           <SelectTrigger className="w-full md:w-48">
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            <SelectItem value="all">All Categories</SelectItem>
             {categories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}
@@ -161,15 +160,12 @@ export default function BlogPage() {
                           {post.readTime} min read
                         </div>
                       </div>
-                      
                       <h3 className="text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
                         {post.title}
                       </h3>
-                      
                       <p className="text-muted-foreground line-clamp-3">
                         {post.excerpt}
                       </p>
-                      
                       <div className="flex items-center justify-between pt-2">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <User className="h-3 w-3" />
@@ -180,7 +176,6 @@ export default function BlogPage() {
                           {format(new Date(post.publishedAt), 'MMM dd, yyyy')}
                         </div>
                       </div>
-                      
                       {post.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 pt-2">
                           {post.tags.slice(0, 3).map((tag) => (
@@ -232,7 +227,7 @@ export default function BlogPage() {
           </p>
           <Button onClick={() => {
             setSearchQuery('');
-            setSelectedCategory('');
+            setSelectedCategory('all');
             setPage(1);
           }}>
             Clear Filters

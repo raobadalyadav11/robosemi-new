@@ -275,7 +275,7 @@ export default function WarrantyPolicyPage() {
                 <h4 className="font-semibold">Online Portal</h4>
                 <p className="text-sm text-muted-foreground">Track warranty status</p>
                 <Button variant="outline" size="sm" className="mt-2" asChild>
-                  <Link href="/warranty-check">Check Status</Link>
+                  <Link href="/warranty-policy-check">Check Status</Link>
                 </Button>
               </div>
             </div>

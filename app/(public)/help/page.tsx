@@ -99,7 +99,7 @@ const faqCategories = [
 const quickLinks = [
   { title: 'Order Status', href: '/track-order', icon: Truck },
   { title: 'Returns', href: '/returns', icon: RotateCcw },
-  { title: 'Warranty', href: '/warranty', icon: Shield },
+  { title: 'Warranty', href: '/warranty-policy', icon: Shield },
   { title: 'Contact Us', href: '/contact', icon: MessageSquare },
 ];
 

@@ -2,10 +2,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
-  Users, 
-  Award, 
-  Globe, 
-  Target,
   Heart,
   Lightbulb,
   Shield,
@@ -260,7 +256,7 @@ export default function AboutPage() {
             <Button size="lg" variant="secondary" asChild>
               <Link href="/products">Explore Products</Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-primary" asChild>
+            <Button size="lg" variant="destructive" className="text-white border-white hover:bg-white hover:text-primary" asChild>
               <Link href="/contact">Contact Us</Link>
             </Button>
           </div>
