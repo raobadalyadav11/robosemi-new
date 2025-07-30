@@ -178,8 +178,8 @@ export function Footer() {
               <MapPin className="h-4 w-4" />
               <div>
                 <div className="font-medium text-foreground">Visit Us</div>
-                <div>Mumbai, Maharashtra</div>
-                <div>India 400001</div>
+                <div>Kasba Purnia</div>
+                <div>Purnia, Bihar - 853301</div>
               </div>
             </div>
           </div>
@@ -195,19 +195,8 @@ export function Footer() {
             </Link>
             <Link href="/terms" className="hover:text-foreground transition-colors">
               Terms of Service
-            </Link>
-            <Link href="/cookies-policy" className="hover:text-foreground transition-colors">
-              Cookie Policy
-            </Link>
-            <Link href="/accessibility" className="hover:text-foreground transition-colors">
-              Accessibility
-            </Link>
-            <Link href="/sitemap" className="hover:text-foreground transition-colors">
-              Sitemap
-            </Link>
-            <Link href="/security" className="hover:text-foreground transition-colors">
-              Security
-            </Link>
+            </Link> 
+          
           </div>
           <div className="text-sm text-muted-foreground">
             © 2025 RoboSemi Technologies. All rights reserved.
