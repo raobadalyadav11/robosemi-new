@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, setUser } = useStore();
+  const { user, setUser ,_hasHydrated} = useStore();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,11 +24,15 @@ export default function LoginPage() {
   
   const redirectTo = searchParams.get('redirect') || '/';
 
-  useEffect(() => {
-    if (user) {
-      router.push(redirectTo);
+ useEffect(() => {
+    if (_hasHydrated && user) {
+      if (user.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push(redirectTo);
+      }
     }
-  }, [user, router, redirectTo]);
+  }, [user, _hasHydrated, router, redirectTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +63,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
   if (user) {
     return null;
   }
