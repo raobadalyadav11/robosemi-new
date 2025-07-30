@@ -1,13 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-// Define the Category type
-interface Category {
-  _id: string;
-  name: string;
-  description?: string;
-}
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
@@ -48,34 +41,35 @@ import {
   X,
   Star,
   TrendingUp,
-  MapPin
+  MapPin,
 } from 'lucide-react';
-const iconMap = {
-  Settings,
-  Zap,
-  Radio,
-  Move,
-  Cpu,
-  Wrench,
+
+// Define the Category type
+interface Category {
+  _id: string;
+  name: string;
+  description?: string;
+  icon?: string; // Optional icon field from API
+}
+
+// Map category names to icons
+const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
+  settings: Settings,
+  zap: Zap,
+  radio: Radio,
+  move: Move,
+  cpu: Cpu,
+  wrench: Wrench,
 };
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { 
-    cart, 
-    wishlist, 
-    user, 
-    setUser, 
-    searchQuery, 
-    setSearchQuery,
-    _hasHydrated 
-  } = useStore();
+  const { cart, wishlist, user, setUser, searchQuery, setSearchQuery, _hasHydrated } = useStore();
   const [categories, setCategories] = useState<Category[]>([]);
-  
   const cartItemsCount = cart.reduce((count, item) => count + item.quantity, 0);
 
   useEffect(() => {
-    fetch('/api/admin/categories')
+    fetch('/api/categories')
       .then((response) => response.json())
       .then((data) => setCategories(data.categories || []))
       .catch(() => setCategories([]));
@@ -85,7 +79,6 @@ export function Header() {
     setUser(null);
   };
 
-  // Prevent hydration mismatch by not rendering user-dependent content until hydrated
   const showUserContent = _hasHydrated;
 
   return (
@@ -141,7 +134,8 @@ export function Header() {
                   <NavigationMenuContent>
                     <div className="grid w-[500px] gap-3 p-6 md:w-[600px] md:grid-cols-2">
                       {categories.map((category) => {
-                        const Icon = Settings; // Default icon
+                        // Use icon from category or fallback to name-based mapping
+                        const Icon = category.icon ? iconMap[category.icon.toLowerCase()] || Settings : iconMap[category.name.toLowerCase()] || Settings;
                         return (
                           <NavigationMenuLink key={category._id} asChild>
                             <Link
@@ -166,7 +160,6 @@ export function Header() {
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
-
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="text-base font-medium">Products</NavigationMenuTrigger>
                   <NavigationMenuContent>
@@ -212,7 +205,6 @@ export function Header() {
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
-            
             <Link href="/projects" className="text-base font-medium hover:text-primary transition-colors">
               Projects
             </Link>
@@ -301,17 +293,17 @@ export function Header() {
                       Addresses
                     </Link>
                   </DropdownMenuItem>
-                {(user.role === 'admin' || user.role === 'staff') && (
-                  <>
-                    <DropdownMenuSeparator className="h-px bg-muted my-1" />
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin" className="flex items-center p-2">
-                        <Shield className="mr-3 h-4 w-4" />
-                        Admin Panel
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
+                  {(user.role === 'admin' || user.role === 'staff') && (
+                    <>
+                      <DropdownMenuSeparator className="h-px bg-muted my-1" />
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin" className="flex items-center p-2">
+                          <Shield className="mr-3 h-4 w-4" />
+                          Admin Panel
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                     <LogOut className="mr-3 h-4 w-4" />
@@ -387,11 +379,11 @@ export function Header() {
                 Deals
               </Link>
               <Link href="/projects" className="block py-3 text-lg font-medium hover:text-primary transition-colors">
-              Projects
-            </Link>
-            <Link href="/training" className="block py-3 text-lg font-medium hover:text-primary transition-colors">
-              Training
-            </Link>
+                Projects
+              </Link>
+              <Link href="/training" className="block py-3 text-lg font-medium hover:text-primary transition-colors">
+                Training
+              </Link>
               <Link
                 href="/about"
                 className="block py-3 text-lg font-medium hover:text-primary transition-colors"
@@ -413,7 +405,7 @@ export function Header() {
               <div className="text-lg font-medium text-muted-foreground">Categories</div>
               <div className="grid grid-cols-2 gap-3">
                 {categories.map((category) => {
-                  const Icon = Settings; // Default icon
+                  const Icon = category.icon ? iconMap[category.icon.toLowerCase()] || Settings : iconMap[category.name.toLowerCase()] || Settings;
                   return (
                     <Link
                       key={category._id}
